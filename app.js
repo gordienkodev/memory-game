@@ -19,8 +19,11 @@ const cards = cardsData.flatMap((card) => [
 ]);
 
 let gameBoard;
+let movesCountElement;
+let matchedPairsElement;
 let selectedCards = [];
 let matchedPairs = new Set();
+let movesCount = 0;
 let isBoardLocked = false;
 
 function createElement(tagName, className, text) {
@@ -46,15 +49,28 @@ function createButton(text) {
 function createHeader() {
     const header = createElement("header", "header");
     const title = createElement("h1", "header__title", "One Punch Man Memory Game");
+    const stats = createElement("div", "header__stats");
+    const movesStat = createElement("span", "header__stat");
+    const pairsStat = createElement("span", "header__stat");
     const actions = createElement("div", "header__actions");
     const newGameButton = createButton("Новая игра");
     const leaderboardButton = createButton("Лидеры");
 
     newGameButton.addEventListener("click", renderCards);
 
+    movesCountElement = createElement("span");
+    matchedPairsElement = createElement("span");
+    movesStat.append("Ходы: ", movesCountElement);
+    pairsStat.append("Пары: ", matchedPairsElement);
+    stats.append(movesStat, pairsStat);
     actions.append(newGameButton, leaderboardButton);
-    header.append(title, actions);
+    header.append(title, stats, actions);
     document.body.append(header);
+}
+
+function updateStats() {
+    movesCountElement.textContent = movesCount;
+    matchedPairsElement.textContent = `${matchedPairs.size} из ${cardsData.length}`;
 }
 
 function shuffleCards() {
@@ -120,16 +136,21 @@ function checkSelectedPair() {
     const [firstCard, secondCard] = selectedCards;
     const isPairMatched = firstCard.dataset.pairId === secondCard.dataset.pairId;
 
+    movesCount += 1;
+
     if (isPairMatched) {
         matchedPairs.add(firstCard.dataset.pairId);
         firstCard.classList.add("is-matched");
         secondCard.classList.add("is-matched");
         firstCard.disabled = true;
         secondCard.disabled = true;
+        updateStats();
         selectedCards = [];
         isBoardLocked = false;
         return;
     }
+
+    updateStats();
 
     window.setTimeout(() => {
         closeCard(firstCard);
@@ -162,7 +183,9 @@ function createGameBoard() {
 function renderCards() {
     selectedCards = [];
     matchedPairs = new Set();
+    movesCount = 0;
     isBoardLocked = false;
+    updateStats();
     gameBoard.replaceChildren(...shuffleCards().map(createCard));
 }
 

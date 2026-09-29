@@ -29,14 +29,33 @@ button {
 }
 
 .header__title {
+    flex: 1 1 auto;
     margin: 0;
     font-size: 22px;
     font-weight: 800;
     text-transform: uppercase;
 }
 
+.header__stats {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.header__stat {
+    display: inline-flex;
+    gap: 4px;
+}
+
 .header__actions {
     display: flex;
+    flex: 0 0 auto;
     gap: 8px;
     flex-wrap: wrap;
 }
@@ -105,8 +124,24 @@ button {
 
 @media (max-width: 560px) {
     .header {
-        align-items: flex-start;
+        align-items: center;
         flex-direction: column;
+        text-align: center;
+    }
+
+    .header__title {
+        flex: none;
+        font-size: 20px;
+    }
+
+    .header__stats {
+        width: 100%;
+        gap: 18px;
+    }
+
+    .header__actions {
+        justify-content: center;
+        width: 100%;
     }
 
     .game-board {
