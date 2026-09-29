@@ -5,8 +5,8 @@
 body {
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;
-    color: #18202c;
-    background: #eef3f8;
+    color: #24120f;
+    background: #f7efe4;
 }
 
 button {
@@ -21,14 +21,18 @@ button {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 10px 18px;
-    background: #ffffff;
-    border-bottom: 1px solid #d8e0ea;
+    padding: 12px 18px;
+    color: #ffe66d;
+    background: #b91616;
+    border-bottom: 4px solid #2b1a16;
+    box-shadow: 0 4px 0 #f0b429;
 }
 
 .header__title {
     margin: 0;
-    font-size: 20px;
+    font-size: 22px;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
 .header__actions {
@@ -39,15 +43,20 @@ button {
 
 .header__button {
     min-height: 34px;
-    padding: 7px 12px;
+    padding: 7px 14px;
     font-size: 14px;
+    font-weight: 700;
     color: #ffffff;
-    background: #2364aa;
+    background: #e1251b;
+    border: 2px solid #2b1a16;
+    box-shadow: 0 3px 0 #2b1a16;
+    text-transform: uppercase;
 }
 
 .header__button:hover,
 .header__button:focus-visible {
-    background: #174d86;
+    background: #ff3b24;
+    transform: translateY(-1px);
 }
 
 .game-board {
@@ -68,9 +77,13 @@ button {
     border: 1px solid #d8e0ea;
 }
 
+.card.is-opening {
+    cursor: wait;
+}
+
 .card:hover,
 .card:focus-visible {
-    outline: 3px solid #2364aa;
+    outline: 3px solid #e1251b;
     outline-offset: 2px;
 }
 

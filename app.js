@@ -9,6 +9,9 @@ const cardsData = [
     { id: 8, image: "./assets/card-8.png" },
 ];
 
+const CARD_BACK_IMAGE = "./assets/back.png";
+const CARD_OPEN_DELAY = 300;
+
 const cards = cardsData.flatMap((card) => [
     { ...card, id: `${card.id}-a`, pairId: card.id },
     { ...card, id: `${card.id}-b`, pairId: card.id },
@@ -38,7 +41,7 @@ function createButton(text) {
 
 function createHeader() {
     const header = createElement("header", "header");
-    const title = createElement("h1", "header__title", "RS Game");
+    const title = createElement("h1", "header__title", "One Punch Man Memory Game");
     const actions = createElement("div", "header__actions");
     const newGameButton = createButton("Новая игра");
     const leaderboardButton = createButton("Лидеры");
@@ -68,13 +71,34 @@ function createCard(card) {
     cardElement.type = "button";
     cardElement.dataset.id = card.id;
     cardElement.dataset.pairId = card.pairId;
+    cardElement.dataset.image = card.image;
 
-    cardImage.src = card.image;
-    cardImage.alt = `Card ${card.pairId}`;
+    cardImage.src = CARD_BACK_IMAGE;
+    cardImage.alt = "Card back";
 
     cardElement.append(cardImage);
+    cardElement.addEventListener("click", handleCardClick);
 
     return cardElement;
+}
+
+function handleCardClick(event) {
+    const cardElement = event.currentTarget;
+
+    if (cardElement.classList.contains("is-open") || cardElement.classList.contains("is-opening")) {
+        return;
+    }
+
+    cardElement.classList.add("is-opening");
+
+    window.setTimeout(() => {
+        const cardImage = cardElement.querySelector(".card__image");
+
+        cardImage.src = cardElement.dataset.image;
+        cardImage.alt = `Card ${cardElement.dataset.pairId}`;
+        cardElement.classList.remove("is-opening");
+        cardElement.classList.add("is-open");
+    }, CARD_OPEN_DELAY);
 }
 
 function createGameBoard() {
