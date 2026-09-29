@@ -20,26 +20,27 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    padding: 18px 24px;
+    gap: 12px;
+    padding: 10px 18px;
     background: #ffffff;
     border-bottom: 1px solid #d8e0ea;
 }
 
 .header__title {
     margin: 0;
-    font-size: 24px;
+    font-size: 20px;
 }
 
 .header__actions {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
 .header__button {
-    min-height: 42px;
-    padding: 10px 16px;
+    min-height: 34px;
+    padding: 7px 12px;
+    font-size: 14px;
     color: #ffffff;
     background: #2364aa;
 }
@@ -49,9 +50,46 @@ button {
     background: #174d86;
 }
 
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(120px, 1fr));
+    gap: 16px;
+    width: min(100%, 760px);
+    margin: 32px auto;
+    padding: 0 24px 32px;
+}
+
+.card {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 1;
+    padding: 0;
+    background: #ffffff;
+    border: 1px solid #d8e0ea;
+}
+
+.card:hover,
+.card:focus-visible {
+    outline: 3px solid #2364aa;
+    outline-offset: 2px;
+}
+
+.card__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 @media (max-width: 560px) {
     .header {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .game-board {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+        gap: 12px;
+        margin-top: 24px;
     }
 }
