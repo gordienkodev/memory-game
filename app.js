@@ -46,7 +46,7 @@ function createElement(tagName, className, text) {
         element.className = className;
     }
 
-    if (text) {
+    if (text !== undefined) {
         element.textContent = text;
     }
 

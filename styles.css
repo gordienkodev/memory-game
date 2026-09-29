@@ -108,8 +108,12 @@ button {
     cursor: default;
 }
 
-.card:hover,
-.card:focus-visible {
+.card:disabled {
+    cursor: default;
+}
+
+.card:not(:disabled):hover,
+.card:not(:disabled):focus-visible {
     outline: 3px solid #e1251b;
     outline-offset: 2px;
 }
