@@ -81,10 +81,19 @@ button {
     cursor: wait;
 }
 
+.card.is-matched {
+    cursor: default;
+}
+
 .card:hover,
 .card:focus-visible {
     outline: 3px solid #e1251b;
     outline-offset: 2px;
+}
+
+.card.is-matched:hover,
+.card.is-matched:focus-visible {
+    outline-color: #1f9d55;
 }
 
 .card__image {

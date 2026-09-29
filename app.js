@@ -10,7 +10,8 @@ const cardsData = [
 ];
 
 const CARD_BACK_IMAGE = "./assets/back.png";
-const CARD_OPEN_DELAY = 300;
+const CARD_OPEN_DELAY = 200;
+const CARD_CLOSE_DELAY = 500;
 
 const cards = cardsData.flatMap((card) => [
     { ...card, id: `${card.id}-a`, pairId: card.id },
@@ -18,6 +19,9 @@ const cards = cardsData.flatMap((card) => [
 ]);
 
 let gameBoard;
+let selectedCards = [];
+let matchedPairs = new Set();
+let isBoardLocked = false;
 
 function createElement(tagName, className, text) {
     const element = document.createElement(tagName);
@@ -82,14 +86,13 @@ function createCard(card) {
     return cardElement;
 }
 
-function handleCardClick(event) {
-    const cardElement = event.currentTarget;
-
-    if (cardElement.classList.contains("is-open") || cardElement.classList.contains("is-opening")) {
-        return;
-    }
-
+function openCard(cardElement) {
     cardElement.classList.add("is-opening");
+    selectedCards.push(cardElement);
+
+    if (selectedCards.length === 2) {
+        isBoardLocked = true;
+    }
 
     window.setTimeout(() => {
         const cardImage = cardElement.querySelector(".card__image");
@@ -98,7 +101,57 @@ function handleCardClick(event) {
         cardImage.alt = `Card ${cardElement.dataset.pairId}`;
         cardElement.classList.remove("is-opening");
         cardElement.classList.add("is-open");
+
+        if (selectedCards.length === 2 && selectedCards.every((card) => !card.classList.contains("is-opening"))) {
+            checkSelectedPair();
+        }
     }, CARD_OPEN_DELAY);
+}
+
+function closeCard(cardElement) {
+    const cardImage = cardElement.querySelector(".card__image");
+
+    cardImage.src = CARD_BACK_IMAGE;
+    cardImage.alt = "Card back";
+    cardElement.classList.remove("is-open");
+}
+
+function checkSelectedPair() {
+    const [firstCard, secondCard] = selectedCards;
+    const isPairMatched = firstCard.dataset.pairId === secondCard.dataset.pairId;
+
+    if (isPairMatched) {
+        matchedPairs.add(firstCard.dataset.pairId);
+        firstCard.classList.add("is-matched");
+        secondCard.classList.add("is-matched");
+        firstCard.disabled = true;
+        secondCard.disabled = true;
+        selectedCards = [];
+        isBoardLocked = false;
+        return;
+    }
+
+    window.setTimeout(() => {
+        closeCard(firstCard);
+        closeCard(secondCard);
+        selectedCards = [];
+        isBoardLocked = false;
+    }, CARD_CLOSE_DELAY);
+}
+
+function handleCardClick(event) {
+    const cardElement = event.currentTarget;
+
+    if (
+        isBoardLocked ||
+        cardElement.classList.contains("is-open") ||
+        cardElement.classList.contains("is-opening") ||
+        cardElement.classList.contains("is-matched")
+    ) {
+        return;
+    }
+
+    openCard(cardElement);
 }
 
 function createGameBoard() {
@@ -107,6 +160,9 @@ function createGameBoard() {
 }
 
 function renderCards() {
+    selectedCards = [];
+    matchedPairs = new Set();
+    isBoardLocked = false;
     gameBoard.replaceChildren(...shuffleCards().map(createCard));
 }
 
