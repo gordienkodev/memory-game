@@ -109,10 +109,14 @@ function sortVictoryResults(results) {
 }
 
 function saveStoredVictoryResults(results) {
-    localStorage.setItem(
-        VICTORY_RESULTS_STORAGE_KEY,
-        JSON.stringify(sortVictoryResults(results).slice(0, MAX_LEADERBOARD_RESULTS))
-    );
+    try {
+        localStorage.setItem(
+            VICTORY_RESULTS_STORAGE_KEY,
+            JSON.stringify(sortVictoryResults(results).slice(0, MAX_LEADERBOARD_RESULTS))
+        );
+    } catch (error) {
+        console.warn("Unable to save victory results.", error);
+    }
 }
 
 function saveVictoryResult() {
