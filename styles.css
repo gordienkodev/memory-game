@@ -20,18 +20,18 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 12px 18px;
+    gap: 10px;
+    padding: 6px 14px;
     color: #ffe66d;
     background: #b91616;
-    border-bottom: 4px solid #2b1a16;
-    box-shadow: 0 4px 0 #f0b429;
+    border-bottom: 3px solid #2b1a16;
+    box-shadow: 0 3px 0 #f0b429;
 }
 
 .header__title {
     flex: 1 1 auto;
     margin: 0;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 800;
     text-transform: uppercase;
 }
@@ -41,8 +41,8 @@ button {
     flex: 0 0 auto;
     align-items: center;
     justify-content: center;
-    gap: 14px;
-    font-size: 15px;
+    gap: 12px;
+    font-size: 14px;
     font-weight: 800;
     text-transform: uppercase;
     white-space: nowrap;
@@ -61,14 +61,14 @@ button {
 }
 
 .header__button {
-    min-height: 34px;
-    padding: 7px 14px;
-    font-size: 14px;
+    min-height: 30px;
+    padding: 5px 12px;
+    font-size: 13px;
     font-weight: 700;
     color: #ffffff;
     background: #e1251b;
     border: 2px solid #2b1a16;
-    box-shadow: 0 3px 0 #2b1a16;
+    box-shadow: 0 2px 0 #2b1a16;
     text-transform: uppercase;
 }
 
@@ -83,8 +83,8 @@ button {
     grid-template-columns: repeat(4, minmax(120px, 1fr));
     gap: 16px;
     width: min(100%, 760px);
-    margin: 32px auto;
-    padding: 0 24px 32px;
+    margin: 24px auto 0;
+    padding: 0 24px 16px;
 }
 
 .card {
@@ -184,12 +184,12 @@ button {
 
     .header__title {
         flex: none;
-        font-size: 20px;
+        font-size: 18px;
     }
 
     .header__stats {
         width: 100%;
-        gap: 18px;
+        gap: 14px;
     }
 
     .header__actions {
@@ -200,7 +200,7 @@ button {
     .game-board {
         grid-template-columns: repeat(4, minmax(64px, 1fr));
         gap: 8px;
-        margin-top: 24px;
+        margin-top: 16px;
         padding-inline: 12px;
     }
 

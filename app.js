@@ -11,7 +11,7 @@ const cardsData = [
 
 const CARD_BACK_IMAGE = "./assets/back.png";
 const CARD_OPEN_DELAY = 200;
-const CARD_CLOSE_DELAY = 500;
+const CARD_CLOSE_DELAY = 1000;
 const TOTAL_PAIRS = cardsData.length;
 const VICTORY_RESULTS_STORAGE_KEY = "memoryGameVictoryResults";
 
