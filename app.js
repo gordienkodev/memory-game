@@ -36,6 +36,7 @@ let matchedPairs = new Set();
 let movesCount = 0;
 let isBoardLocked = false;
 let isGameWon = false;
+let openCardTimerIds = new Set();
 let closeMismatchTimerId = null;
 
 function createElement(tagName, className, text) {
@@ -218,6 +219,11 @@ function shuffleCards() {
     return shuffledCards;
 }
 
+function clearOpenCardTimers() {
+    openCardTimerIds.forEach((timerId) => window.clearTimeout(timerId));
+    openCardTimerIds.clear();
+}
+
 function createCard(card) {
     const cardElement = createElement("button", "card");
     const cardImage = createElement("img", "card__image");
@@ -244,7 +250,9 @@ function openCard(cardElement) {
         isBoardLocked = true;
     }
 
-    window.setTimeout(() => {
+    const openCardTimerId = window.setTimeout(() => {
+        openCardTimerIds.delete(openCardTimerId);
+
         const cardImage = cardElement.querySelector(".card__image");
 
         cardImage.src = cardElement.dataset.image;
@@ -256,6 +264,8 @@ function openCard(cardElement) {
             checkSelectedPair();
         }
     }, CARD_OPEN_DELAY);
+
+    openCardTimerIds.add(openCardTimerId);
 }
 
 function closeCard(cardElement) {
@@ -376,6 +386,8 @@ function createLeaderboardModal() {
 }
 
 function renderCards() {
+    clearOpenCardTimers();
+
     if (closeMismatchTimerId !== null) {
         window.clearTimeout(closeMismatchTimerId);
         closeMismatchTimerId = null;
