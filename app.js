@@ -36,6 +36,7 @@ let matchedPairs = new Set();
 let movesCount = 0;
 let isBoardLocked = false;
 let isGameWon = false;
+let closeMismatchTimerId = null;
 
 function createElement(tagName, className, text) {
     const element = document.createElement(tagName);
@@ -157,7 +158,7 @@ function renderLeaderboard() {
         const item = createElement("li", "leaderboard__item");
         const place = createElement("span", "leaderboard__place", `${index + 1}.`);
         const moves = createElement("span", "leaderboard__moves", `${result.moves} ходов`);
-        const date = createElement("time", "leaderboard__date", new Date(result.wonAt).toLocaleString("ru-RU"));
+        const date = createElement("time", "leaderboard__date", new Date(result.wonAt).toLocaleDateString("ru-RU"));
 
         date.dateTime = result.wonAt;
         item.append(place, moves, date);
@@ -287,11 +288,12 @@ function checkSelectedPair() {
 
     updateStats();
 
-    window.setTimeout(() => {
+    closeMismatchTimerId = window.setTimeout(() => {
         closeCard(firstCard);
         closeCard(secondCard);
         selectedCards = [];
         isBoardLocked = false;
+        closeMismatchTimerId = null;
     }, CARD_CLOSE_DELAY);
 }
 
@@ -370,6 +372,11 @@ function createLeaderboardModal() {
 }
 
 function renderCards() {
+    if (closeMismatchTimerId !== null) {
+        window.clearTimeout(closeMismatchTimerId);
+        closeMismatchTimerId = null;
+    }
+
     selectedCards = [];
     matchedPairs = new Set();
     movesCount = 0;
