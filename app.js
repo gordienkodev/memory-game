@@ -14,6 +14,7 @@ const CARD_OPEN_DELAY = 200;
 const CARD_CLOSE_DELAY = 1000;
 const TOTAL_PAIRS = cardsData.length;
 const VICTORY_RESULTS_STORAGE_KEY = "memoryGameVictoryResults";
+const MAX_LEADERBOARD_RESULTS = 10;
 
 const cards = cardsData.flatMap((card) => [
     { ...card, id: `${card.id}-a`, pairId: card.id },
@@ -21,10 +22,15 @@ const cards = cardsData.flatMap((card) => [
 ]);
 
 let gameBoard;
+let headerElement;
 let movesCountElement;
 let matchedPairsElement;
 let victoryModal;
 let victoryMovesElement;
+let leaderboardModal;
+let leaderboardListElement;
+let leaderboardEmptyElement;
+let activeModal = null;
 let selectedCards = [];
 let matchedPairs = new Set();
 let movesCount = 0;
@@ -62,6 +68,7 @@ function createHeader() {
     const leaderboardButton = createButton("Лидеры");
 
     newGameButton.addEventListener("click", renderCards);
+    leaderboardButton.addEventListener("click", showLeaderboardModal);
 
     movesCountElement = createElement("span");
     matchedPairsElement = createElement("span");
@@ -71,6 +78,7 @@ function createHeader() {
     actions.append(newGameButton, leaderboardButton);
     header.append(title, stats, actions);
     document.body.append(header);
+    headerElement = header;
 }
 
 function updateStats() {
@@ -81,10 +89,29 @@ function updateStats() {
 function getStoredVictoryResults() {
     try {
         const storedResults = JSON.parse(localStorage.getItem(VICTORY_RESULTS_STORAGE_KEY));
-        return Array.isArray(storedResults) ? storedResults : [];
+        return Array.isArray(storedResults) ? sortVictoryResults(storedResults).slice(0, MAX_LEADERBOARD_RESULTS) : [];
     } catch {
         return [];
     }
+}
+
+function sortVictoryResults(results) {
+    return [...results].sort((firstResult, secondResult) => {
+        const movesDifference = firstResult.moves - secondResult.moves;
+
+        if (movesDifference !== 0) {
+            return movesDifference;
+        }
+
+        return new Date(firstResult.wonAt).getTime() - new Date(secondResult.wonAt).getTime();
+    });
+}
+
+function saveStoredVictoryResults(results) {
+    localStorage.setItem(
+        VICTORY_RESULTS_STORAGE_KEY,
+        JSON.stringify(sortVictoryResults(results).slice(0, MAX_LEADERBOARD_RESULTS))
+    );
 }
 
 function saveVictoryResult() {
@@ -101,7 +128,7 @@ function saveVictoryResult() {
     };
     const victoryResults = getStoredVictoryResults();
 
-    localStorage.setItem(VICTORY_RESULTS_STORAGE_KEY, JSON.stringify([...victoryResults, victoryResult]));
+    saveStoredVictoryResults([...victoryResults, victoryResult]);
 }
 
 function finishGame() {
@@ -117,11 +144,62 @@ function finishGame() {
 
 function showVictoryModal() {
     victoryMovesElement.textContent = movesCount;
-    victoryModal.hidden = false;
+    openModal(victoryModal);
 }
 
-function closeVictoryModal() {
-    victoryModal.hidden = true;
+function renderLeaderboard() {
+    const victoryResults = getStoredVictoryResults();
+
+    leaderboardListElement.replaceChildren();
+    leaderboardEmptyElement.hidden = victoryResults.length > 0;
+
+    victoryResults.forEach((result, index) => {
+        const item = createElement("li", "leaderboard__item");
+        const place = createElement("span", "leaderboard__place", `${index + 1}.`);
+        const moves = createElement("span", "leaderboard__moves", `${result.moves} ходов`);
+        const date = createElement("time", "leaderboard__date", new Date(result.wonAt).toLocaleString("ru-RU"));
+
+        date.dateTime = result.wonAt;
+        item.append(place, moves, date);
+        leaderboardListElement.append(item);
+    });
+}
+
+function showLeaderboardModal() {
+    renderLeaderboard();
+    openModal(leaderboardModal);
+}
+
+function openModal(modalElement) {
+    if (activeModal && activeModal !== modalElement) {
+        closeModal(activeModal);
+    }
+
+    activeModal = modalElement;
+    modalElement.hidden = false;
+    modalElement.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+    headerElement.inert = true;
+    gameBoard.inert = true;
+
+    const closeButton = modalElement.querySelector("[data-modal-close]");
+    closeButton?.focus();
+}
+
+function closeModal(modalElement = activeModal) {
+    if (!modalElement) {
+        return;
+    }
+
+    modalElement.hidden = true;
+    modalElement.setAttribute("aria-hidden", "true");
+
+    if (activeModal === modalElement) {
+        activeModal = null;
+        document.body.classList.remove("modal-open");
+        headerElement.inert = false;
+        gameBoard.inert = false;
+    }
 }
 
 function shuffleCards() {
@@ -238,27 +316,57 @@ function createGameBoard() {
     document.body.append(gameBoard);
 }
 
-function createVictoryModal() {
-    victoryModal = createElement("div", "victory-modal");
-    const modalContent = createElement("section", "victory-modal__content");
-    const title = createElement("h2", "victory-modal__title", "Победа!");
-    const message = createElement("p", "victory-modal__message", "Все пары найдены.");
-    const moves = createElement("p", "victory-modal__moves");
-    const actions = createElement("div", "victory-modal__actions");
-    const newGameButton = createButton("Новая игра");
+function createModal(titleText) {
+    const modal = createElement("div", "modal");
+    const modalContent = createElement("section", "modal__content");
+    const title = createElement("h2", "modal__title", titleText);
+    const body = createElement("div", "modal__body");
+    const actions = createElement("div", "modal__actions");
     const closeButton = createButton("Закрыть");
 
-    victoryModal.hidden = true;
-    victoryMovesElement = createElement("span");
+    modal.hidden = true;
+    modal.setAttribute("aria-hidden", "true");
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    closeButton.dataset.modalClose = "true";
+    closeButton.addEventListener("click", () => closeModal(modal));
+    modal.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            closeModal(modal);
+        }
+    });
 
+    actions.append(closeButton);
+    modalContent.append(title, body, actions);
+    modal.append(modalContent);
+    document.body.append(modal);
+
+    return { modal, body, actions };
+}
+
+function createVictoryModal() {
+    const { modal, body, actions } = createModal("Победа!");
+    const message = createElement("p", "modal__message", "Все пары найдены.");
+    const moves = createElement("p", "modal__moves");
+    const newGameButton = createButton("Новая игра");
+
+    victoryModal = modal;
+    victoryMovesElement = createElement("span");
     moves.append("Итоговое число ходов: ", victoryMovesElement);
     newGameButton.addEventListener("click", renderCards);
-    closeButton.addEventListener("click", closeVictoryModal);
 
-    actions.append(newGameButton, closeButton);
-    modalContent.append(title, message, moves, actions);
-    victoryModal.append(modalContent);
-    document.body.append(victoryModal);
+    actions.prepend(newGameButton);
+    body.append(message, moves);
+}
+
+function createLeaderboardModal() {
+    const { modal, body } = createModal("Лидеры");
+
+    leaderboardModal = modal;
+    leaderboardEmptyElement = createElement("p", "modal__message", "Результатов пока нет.");
+    leaderboardListElement = createElement("ol", "leaderboard");
+
+    body.append(leaderboardEmptyElement, leaderboardListElement);
 }
 
 function renderCards() {
@@ -267,12 +375,19 @@ function renderCards() {
     movesCount = 0;
     isBoardLocked = false;
     isGameWon = false;
-    closeVictoryModal();
+    closeModal();
     updateStats();
     gameBoard.replaceChildren(...shuffleCards().map(createCard));
 }
 
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+        closeModal();
+    }
+});
+
 createHeader();
 createGameBoard();
 createVictoryModal();
+createLeaderboardModal();
 renderCards();

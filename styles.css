@@ -9,6 +9,10 @@ body {
     background: #f7efe4;
 }
 
+body.modal-open {
+    overflow: hidden;
+}
+
 button {
     border: 0;
     border-radius: 8px;
@@ -122,11 +126,11 @@ button {
     object-fit: cover;
 }
 
-.victory-modal[hidden] {
+.modal[hidden] {
     display: none;
 }
 
-.victory-modal {
+.modal {
     position: fixed;
     inset: 0;
     z-index: 10;
@@ -136,8 +140,10 @@ button {
     background: rgba(36, 18, 15, 0.72);
 }
 
-.victory-modal__content {
+.modal__content {
     width: min(100%, 420px);
+    max-height: calc(100vh - 48px);
+    overflow: auto;
     padding: 24px;
     text-align: center;
     color: #24120f;
@@ -147,7 +153,7 @@ button {
     box-shadow: 0 8px 0 #f0b429;
 }
 
-.victory-modal__title {
+.modal__title {
     margin: 0 0 10px;
     font-size: 30px;
     font-weight: 800;
@@ -155,24 +161,56 @@ button {
     text-transform: uppercase;
 }
 
-.victory-modal__message,
-.victory-modal__moves {
+.modal__message,
+.modal__moves {
     margin: 0;
     font-size: 18px;
     font-weight: 700;
 }
 
-.victory-modal__moves {
+.modal__moves {
     margin-top: 10px;
     color: #b91616;
 }
 
-.victory-modal__actions {
+.modal__actions {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin-top: 20px;
     flex-wrap: wrap;
+}
+
+.leaderboard {
+    display: grid;
+    gap: 8px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.leaderboard__item {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    text-align: left;
+    font-size: 15px;
+    font-weight: 700;
+    background: #ffffff;
+    border: 2px solid #2b1a16;
+    border-radius: 8px;
+}
+
+.leaderboard__place {
+    color: #b91616;
+}
+
+.leaderboard__date {
+    color: #6a5149;
+    font-size: 13px;
+    white-space: nowrap;
 }
 
 @media (max-width: 560px) {
@@ -204,16 +242,24 @@ button {
         padding-inline: 12px;
     }
 
-    .victory-modal__content {
+    .modal__content {
         padding: 20px;
     }
 
-    .victory-modal__title {
+    .modal__title {
         font-size: 26px;
     }
 
-    .victory-modal__message,
-    .victory-modal__moves {
+    .modal__message,
+    .modal__moves {
         font-size: 16px;
+    }
+
+    .leaderboard__item {
+        grid-template-columns: 28px 1fr;
+    }
+
+    .leaderboard__date {
+        grid-column: 2;
     }
 }
