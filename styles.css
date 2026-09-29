@@ -122,6 +122,59 @@ button {
     object-fit: cover;
 }
 
+.victory-modal[hidden] {
+    display: none;
+}
+
+.victory-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(36, 18, 15, 0.72);
+}
+
+.victory-modal__content {
+    width: min(100%, 420px);
+    padding: 24px;
+    text-align: center;
+    color: #24120f;
+    background: #fff7dc;
+    border: 4px solid #2b1a16;
+    border-radius: 8px;
+    box-shadow: 0 8px 0 #f0b429;
+}
+
+.victory-modal__title {
+    margin: 0 0 10px;
+    font-size: 30px;
+    font-weight: 800;
+    color: #b91616;
+    text-transform: uppercase;
+}
+
+.victory-modal__message,
+.victory-modal__moves {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.victory-modal__moves {
+    margin-top: 10px;
+    color: #b91616;
+}
+
+.victory-modal__actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
 @media (max-width: 560px) {
     .header {
         align-items: center;
@@ -145,8 +198,22 @@ button {
     }
 
     .game-board {
-        grid-template-columns: repeat(2, minmax(120px, 1fr));
-        gap: 12px;
+        grid-template-columns: repeat(4, minmax(64px, 1fr));
+        gap: 8px;
         margin-top: 24px;
+        padding-inline: 12px;
+    }
+
+    .victory-modal__content {
+        padding: 20px;
+    }
+
+    .victory-modal__title {
+        font-size: 26px;
+    }
+
+    .victory-modal__message,
+    .victory-modal__moves {
+        font-size: 16px;
     }
 }

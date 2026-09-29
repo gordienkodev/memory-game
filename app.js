@@ -12,6 +12,8 @@ const cardsData = [
 const CARD_BACK_IMAGE = "./assets/back.png";
 const CARD_OPEN_DELAY = 200;
 const CARD_CLOSE_DELAY = 500;
+const TOTAL_PAIRS = cardsData.length;
+const VICTORY_RESULTS_STORAGE_KEY = "memoryGameVictoryResults";
 
 const cards = cardsData.flatMap((card) => [
     { ...card, id: `${card.id}-a`, pairId: card.id },
@@ -21,10 +23,13 @@ const cards = cardsData.flatMap((card) => [
 let gameBoard;
 let movesCountElement;
 let matchedPairsElement;
+let victoryModal;
+let victoryMovesElement;
 let selectedCards = [];
 let matchedPairs = new Set();
 let movesCount = 0;
 let isBoardLocked = false;
+let isGameWon = false;
 
 function createElement(tagName, className, text) {
     const element = document.createElement(tagName);
@@ -70,7 +75,53 @@ function createHeader() {
 
 function updateStats() {
     movesCountElement.textContent = movesCount;
-    matchedPairsElement.textContent = `${matchedPairs.size} из ${cardsData.length}`;
+    matchedPairsElement.textContent = `${matchedPairs.size} из ${TOTAL_PAIRS}`;
+}
+
+function getStoredVictoryResults() {
+    try {
+        const storedResults = JSON.parse(localStorage.getItem(VICTORY_RESULTS_STORAGE_KEY));
+        return Array.isArray(storedResults) ? storedResults : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveVictoryResult() {
+    if (isGameWon) {
+        return;
+    }
+
+    isGameWon = true;
+
+    const victoryResult = {
+        moves: movesCount,
+        matchedPairs: matchedPairs.size,
+        wonAt: new Date().toISOString(),
+    };
+    const victoryResults = getStoredVictoryResults();
+
+    localStorage.setItem(VICTORY_RESULTS_STORAGE_KEY, JSON.stringify([...victoryResults, victoryResult]));
+}
+
+function finishGame() {
+    saveVictoryResult();
+    isBoardLocked = true;
+
+    gameBoard.querySelectorAll(".card").forEach((cardElement) => {
+        cardElement.disabled = true;
+    });
+
+    showVictoryModal();
+}
+
+function showVictoryModal() {
+    victoryMovesElement.textContent = movesCount;
+    victoryModal.hidden = false;
+}
+
+function closeVictoryModal() {
+    victoryModal.hidden = true;
 }
 
 function shuffleCards() {
@@ -146,6 +197,12 @@ function checkSelectedPair() {
         secondCard.disabled = true;
         updateStats();
         selectedCards = [];
+
+        if (matchedPairs.size === TOTAL_PAIRS) {
+            finishGame();
+            return;
+        }
+
         isBoardLocked = false;
         return;
     }
@@ -164,6 +221,7 @@ function handleCardClick(event) {
     const cardElement = event.currentTarget;
 
     if (
+        isGameWon ||
         isBoardLocked ||
         cardElement.classList.contains("is-open") ||
         cardElement.classList.contains("is-opening") ||
@@ -180,15 +238,41 @@ function createGameBoard() {
     document.body.append(gameBoard);
 }
 
+function createVictoryModal() {
+    victoryModal = createElement("div", "victory-modal");
+    const modalContent = createElement("section", "victory-modal__content");
+    const title = createElement("h2", "victory-modal__title", "Победа!");
+    const message = createElement("p", "victory-modal__message", "Все пары найдены.");
+    const moves = createElement("p", "victory-modal__moves");
+    const actions = createElement("div", "victory-modal__actions");
+    const newGameButton = createButton("Новая игра");
+    const closeButton = createButton("Закрыть");
+
+    victoryModal.hidden = true;
+    victoryMovesElement = createElement("span");
+
+    moves.append("Итоговое число ходов: ", victoryMovesElement);
+    newGameButton.addEventListener("click", renderCards);
+    closeButton.addEventListener("click", closeVictoryModal);
+
+    actions.append(newGameButton, closeButton);
+    modalContent.append(title, message, moves, actions);
+    victoryModal.append(modalContent);
+    document.body.append(victoryModal);
+}
+
 function renderCards() {
     selectedCards = [];
     matchedPairs = new Set();
     movesCount = 0;
     isBoardLocked = false;
+    isGameWon = false;
+    closeVictoryModal();
     updateStats();
     gameBoard.replaceChildren(...shuffleCards().map(createCard));
 }
 
 createHeader();
 createGameBoard();
+createVictoryModal();
 renderCards();
